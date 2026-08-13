@@ -1,0 +1,5 @@
+# Fixture ownership used by the cleanup-agent test.
+* @motatoes
+
+# A more specific rule lets the agent exercise CODEOWNERS matching.
+/src/profile.js @motatoes

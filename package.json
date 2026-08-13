@@ -1,0 +1,17 @@
+{
+  "name": "opencomputer-app-hello-world",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "dev": "opencomputer dev",
+    "session": "opencomputer session",
+    "deploy": "opencomputer deploy"
+  },
+  "dependencies": {
+    "@opencomputer/agent": "^0.4.0"
+  },
+  "devDependencies": {
+    "@opencomputer/cli": "^0.5.0"
+  }
+}
