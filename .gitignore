@@ -3,4 +3,5 @@ dist/
 .opencomputer/
 .env
 .env.local
+opencomputer/.env.local
 .DS_Store
