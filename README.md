@@ -9,10 +9,37 @@ It also includes a dependency-free fixture application under
 
 - Node.js 22 or newer
 - Access to the linked OpenComputer project
-- `GITHUB_PAT` with permission to read this repository and create branches and
-  pull requests
+- A GitHub personal access token configured as described in
+  [GitHub PAT permissions](#github-pat-permissions)
 - An Unleash personal access token for the configured US Cloud instance
 - The remote MCP server enabled under **Admin settings → Remote MCP server**
+
+## GitHub PAT permissions
+
+Prefer a fine-grained personal access token. Set its resource owner to the user
+or organization that owns every repository the agent will inspect, select only
+those repositories, and grant these repository permissions:
+
+- **Contents: Read and write** — clone/read the repository, create the cleanup
+  branch, and commit updated or deleted files.
+- **Pull requests: Read and write** — detect an existing cleanup PR, open a new
+  PR, and request reviewers.
+
+GitHub automatically includes **Metadata: Read-only**. No Issues,
+Administration, Actions, or repository-secret permission is needed. If the
+agent must change a file under `.github/workflows/`, also grant
+**Workflows: Read and write**.
+
+For an organization-owned repository, the token may require organization-owner
+approval. If the organization uses SAML SSO, authorize the token for that
+organization as well. The token's owner must already have permission to push a
+branch and open a pull request in each selected repository; a PAT cannot grant
+more access than its owner has.
+
+If a classic PAT is unavoidable, grant the **repo** scope. Add **workflow** only
+when cleanup PRs may modify `.github/workflows/` files. Fine-grained tokens are
+preferred because they can be restricted to named repositories and the two
+permissions above.
 
 ## Install
 
