@@ -18,9 +18,11 @@ export const githubPat = defineConnection({
   origin: "https://api.github.com",
   methods: ["GET", "POST", "PUT", "DELETE"],
   pathPrefix: "/repos/",
+  redirectOrigins: [{ origin: "https://codeload.github.com" }],
   headers: {
     Accept: "application/vnd.github+json",
     Authorization: bearer(useSecret("GITHUB_PAT")),
+    "User-Agent": "opencomputer-example-unleash",
     "X-GitHub-Api-Version": "2022-11-28",
   },
 });
