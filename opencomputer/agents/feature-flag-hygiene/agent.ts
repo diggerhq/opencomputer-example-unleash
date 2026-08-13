@@ -1,7 +1,6 @@
 import {
   defineConnection,
   defineMcpServer,
-  secretHeader,
   useInput,
   useMcpServer,
   useModel,
@@ -27,7 +26,7 @@ const unleash = defineConnection({
   methods: ["GET", "POST", "PUT", "PATCH", "DELETE"],
   pathPrefix: "/usqq0134/api/admin/mcp",
   headers: {
-    Authorization: secretHeader(useSecret("UNLEASH_API_TOKEN")),
+    Authorization: useSecret("UNLEASH_API_TOKEN"),
   },
 });
 
