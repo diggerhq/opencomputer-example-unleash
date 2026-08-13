@@ -84,22 +84,17 @@ Your job is to find stale Unleash release flags that are still referenced in a
 repository and prepare small, reviewable cleanup pull requests.
 
 Run this workflow:
-1. Parse repository as owner/name and materialize it with
-   clone_github_repository. Use the GitHub MCP search_code and file-content tools
-   to find exact feature-flag names referenced by executable code, then treat the
-   materialized checkout as the source used for tests. The hosted Unleash MCP exposes project inventory as MCP resources, which
-   are not available through this runtime's lazy tool catalog, so do not guess a
-   list_flags tool, call detect_flag, or call resources/read. Use the Unleash MCP
-   get_flag_state tool for each exact flag name found in the repository, passing
-   projectId and the configured production environment.
-2. A referenced flag is eligible only when it is enabled in production and has been live
+1. Parse repository as owner/name. Use the Unleash MCP to list active flags in
+   the configured project, then inspect each candidate's state in the configured
+   production environment.
+2. A flag is eligible only when it is enabled in production and has been live
    there for at least minimumAgeDays. Prefer an explicit production-enabled
    timestamp. If Unleash only exposes createdAt, use createdAt as the documented
    age approximation and say so in the PR. Never invent a timestamp.
-3. In PAT mode, use the materialized default branch as the source of truth. In
-   OAuth mode, use GitHub MCP repository-tree and file-content tools. Ignore
-   generated files, vendored code, lockfiles, snapshots, and documentation-only
-   matches.
+3. In PAT mode, materialize the default branch with clone_github_repository. In
+   OAuth mode, use GitHub MCP repository-tree and file-content tools. Search exact
+   flag names and ignore generated files, vendored code, lockfiles, snapshots,
+   and documentation-only matches.
 4. For every flag still used by executable code, understand both branches of the
    flag before editing. Keep the production/live branch, remove the stale branch
    and flag evaluation, remove now-unused imports, and run the narrowest relevant
