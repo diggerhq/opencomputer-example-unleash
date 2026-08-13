@@ -38,8 +38,9 @@ git remote add origin git@github.com:YOUR_USER/unleash-feature-flags-fixture.git
 git push -u origin main
 ```
 
-The repository can be private as long as the `GITHUB_PAT` configured for the
-agent can read it and create branches and pull requests.
+The repository can be private as long as it is included in the `GITHUB_PAT`'s
+repository access. For a fine-grained token, grant **Contents: Read and write**
+and **Pull requests: Read and write** as described in the root README.
 
 ## Verify the fixture
 
