@@ -54,16 +54,17 @@ is useful for direct API scripts, but it is not sent to the managed agent
 runtime. Store both credentials as managed development secrets:
 
 ```bash
-npx opencomputer secrets set GITHUB_PAT \
+npm run opencomputer -- secrets set GITHUB_PAT \
   --environment development \
   --agent current
 
-npx opencomputer secrets set UNLEASH_API_TOKEN \
+npm run opencomputer -- secrets set UNLEASH_API_TOKEN \
   --environment development \
   --agent current
 ```
 
-Each command prompts for a hidden value. Never commit either token.
+Each command prompts for a hidden value. Never commit or pass either token as
+a command argument.
 
 ## Start the development inspector
 

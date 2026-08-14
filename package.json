@@ -4,6 +4,7 @@
   "private": true,
   "type": "module",
   "scripts": {
+    "opencomputer": "opencomputer",
     "dev": "opencomputer dev",
     "session": "opencomputer session",
     "deploy": "opencomputer deploy"
