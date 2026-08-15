@@ -99,8 +99,8 @@ npm run session -- "Analyze repository diggerhq/opencomputer-example-unleash usi
 ```
 
 The agent should open one PR per eligible flag and leave the flags themselves
-unchanged in Unleash. For every created or reused PR, it also publishes one
-deduplicated review request to the configured Slack destination.
+unchanged in Unleash. Outside dry-run mode, every created or reused PR also
+publishes one deduplicated review request to the configured Slack destination.
 
 ## Configure Slack review notifications
 
@@ -116,6 +116,11 @@ In the project's **Channels** tab:
    review requests.
 3. Bind `pull-request-reviews` to that Slack conversation's stable ID (the
    value beginning with `C` or `G`), not its mutable `#channel-name`.
+
+Bindings are environment-specific: configure Development while testing and
+configure Production separately before deploying there. If the channel's
+declared Slack scopes later expand, reconnect the app so the workspace can
+authorize the additional scopes.
 
 The same app also listens for `@mention` events and routes them to the
 feature-flag hygiene agent. A Slack delivery failure is returned as

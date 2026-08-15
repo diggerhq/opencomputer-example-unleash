@@ -286,6 +286,9 @@ export const openCleanupPullRequest = defineTool({
     );
     if (existing?.length) {
       const pull = existing[0]!;
+      if (input.dryRun) {
+        return { status: "existing", pullRequest: pull };
+      }
       const notification = await notifyPullRequestReview({
         owner,
         repo,
