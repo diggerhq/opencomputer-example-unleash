@@ -99,7 +99,30 @@ npm run session -- "Analyze repository diggerhq/opencomputer-example-unleash usi
 ```
 
 The agent should open one PR per eligible flag and leave the flags themselves
-unchanged in Unleash.
+unchanged in Unleash. For every created or reused PR, it also publishes one
+deduplicated review request to the configured Slack destination.
+
+## Configure Slack review notifications
+
+The project defines a `team-slack` channel in code and maps its
+`pull-request-reviews` destination to the `review-requests` outbox. Deploy or
+start development sync once so OpenComputer can discover those resources.
+
+In the project's **Channels** tab:
+
+1. Open `team-slack`, create the Slack app from the generated manifest, and
+   install it in the workspace.
+2. Invite the installed app to the public Slack channel that should receive
+   review requests.
+3. Bind `pull-request-reviews` to that Slack conversation's stable ID (the
+   value beginning with `C`), not its mutable `#channel-name`.
+
+The same app also listens for `@mention` events and routes them to the
+feature-flag hygiene agent. A Slack delivery failure is returned as
+`notificationWarning`; it does not turn an already-created GitHub pull request
+into a failed tool call. Re-running the tool reuses the stable
+`owner/repository#pull-number:review-request` idempotency key, so the outbox can
+deduplicate the notification.
 
 ## Verify the fixture directly
 
