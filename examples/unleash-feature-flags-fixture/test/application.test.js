@@ -29,5 +29,8 @@ test("the production profile behavior uses cards and the new navigation", () => 
 
 test("search always uses the semantic engine", () => {
   assert.equal(search("flags").engine, "semantic");
+});
+
+test("disabled flags retain their fallback behavior", () => {
   assert.equal(invoiceRenderer({ id: "inv-1" }).template, "classic-pdf");
 });
