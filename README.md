@@ -112,10 +112,10 @@ In the project's **Channels** tab:
 
 1. Open `team-slack`, create the Slack app from the generated manifest, and
    install it in the workspace.
-2. Invite the installed app to the private Slack channel that should receive
+2. Invite the installed app to the public Slack channel that should receive
    review requests.
 3. Bind `pull-request-reviews` to that Slack conversation's stable ID (the
-   value beginning with `C` or `G`), not its mutable `#channel-name`.
+   value beginning with `C`), not its mutable `#channel-name`.
 
 Bindings are environment-specific: configure Development while testing and
 configure Production separately before deploying there. If the channel's

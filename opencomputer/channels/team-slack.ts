@@ -5,13 +5,13 @@ export default defineChannel({
   type: "slack",
   displayName: "Feature Flag Hygiene",
   scopes: {
-    bot: ["app_mentions:read", "chat:write", "groups:read"],
+    bot: ["app_mentions:read", "chat:write", "channels:read"],
   },
   events: ["app_mention"],
   destinations: {
     "pull-request-reviews": {
       type: "conversation",
-      visibility: "private",
+      visibility: "public",
     },
   },
   routing: { whenAmbiguous: "ask" },
