@@ -2,8 +2,10 @@ import {
   bearer,
   defineConnection,
   defineTool,
+  publishOutbox,
   useSecret,
 } from "@opencomputer/agent";
+import type { OutboxPublishResult } from "@opencomputer/agent";
 import { execFile } from "node:child_process";
 import { mkdtemp, mkdir, rm, writeFile } from "node:fs/promises";
 import { tmpdir } from "node:os";
@@ -141,6 +143,39 @@ type GitHubCommit = {
   commit: { author: { name: string; email: string; date: string } | null };
 };
 
+async function notifyPullRequestReview(input: {
+  owner: string;
+  repo: string;
+  number: number;
+  url: string;
+  title: string;
+  reviewers: string[];
+  teamReviewers: string[];
+}): Promise<{
+  notification?: OutboxPublishResult;
+  notificationWarning?: string;
+}> {
+  const requestedReviewers = [...input.reviewers, ...input.teamReviewers];
+  try {
+    const notification = await publishOutbox("review-requests", {
+      type: "pull-request.ready",
+      idempotencyKey: `${input.owner}/${input.repo}#${input.number}:review-request`,
+      content: {
+        title: `Review requested: ${input.title}`,
+        body: requestedReviewers.length
+          ? `Requested reviewers: ${requestedReviewers.join(", ")}`
+          : "A cleanup pull request is ready for review.",
+        url: input.url,
+      },
+    });
+    return { notification };
+  } catch (error) {
+    return {
+      notificationWarning: error instanceof Error ? error.message : String(error),
+    };
+  }
+}
+
 function filePath(value: string): string {
   const normalized = String(value ?? "").replace(/^\/+/, "");
   if (!normalized || normalized.includes("..") || normalized.includes("\\")) {
@@ -239,6 +274,8 @@ export const openCleanupPullRequest = defineTool({
       ...change,
       path: filePath(change.path),
     }));
+    const reviewers = (input.reviewers as string[] | undefined) ?? [];
+    const teamReviewers = (input.teamReviewers as string[] | undefined) ?? [];
 
     const repository = await githubJson<GitHubRepository>(`/repos/${owner}/${repo}`, { signal });
     const base = String(input.base ?? repository!.default_branch);
@@ -248,7 +285,20 @@ export const openCleanupPullRequest = defineTool({
       { signal },
     );
     if (existing?.length) {
-      return { status: "existing", pullRequest: existing[0] };
+      const pull = existing[0]!;
+      if (input.dryRun) {
+        return { status: "existing", pullRequest: pull };
+      }
+      const notification = await notifyPullRequestReview({
+        owner,
+        repo,
+        number: pull.number,
+        url: pull.html_url,
+        title: String(input.title),
+        reviewers,
+        teamReviewers,
+      });
+      return { status: "existing", pullRequest: pull, ...notification };
     }
 
     if (input.dryRun) {
@@ -335,8 +385,6 @@ export const openCleanupPullRequest = defineTool({
       }),
     });
 
-    const reviewers = (input.reviewers as string[] | undefined) ?? [];
-    const teamReviewers = (input.teamReviewers as string[] | undefined) ?? [];
     let reviewerWarning: string | undefined;
     if (reviewers.length || teamReviewers.length) {
       try {
@@ -351,11 +399,21 @@ export const openCleanupPullRequest = defineTool({
       }
     }
 
+    const notification = await notifyPullRequestReview({
+      owner,
+      repo,
+      number: pull!.number,
+      url: pull!.html_url,
+      title: String(input.title),
+      reviewers,
+      teamReviewers,
+    });
     return {
       status: "created",
       number: pull!.number,
       url: pull!.html_url,
       ...(reviewerWarning ? { reviewerWarning } : {}),
+      ...notification,
     };
   },
 });

@@ -10,9 +10,9 @@
     "deploy": "opencomputer deploy"
   },
   "dependencies": {
-    "@opencomputer/agent": "^0.4.1"
+    "@opencomputer/agent": "^0.5.0"
   },
   "devDependencies": {
-    "@opencomputer/cli": "^0.5.1"
+    "@opencomputer/cli": "^0.5.3"
   }
 }
