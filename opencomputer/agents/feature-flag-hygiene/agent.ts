@@ -38,6 +38,7 @@ const unleashMcp = defineMcpServer({
 });
 
 type SchedulePayload = {
+  mode?: "async";
   repository?: string;
   projectId?: string;
   productionEnvironment?: string;
@@ -65,8 +66,8 @@ export default function Agent() {
   useTool(openCleanupPullRequest);
   useMcpServer(githubPatMcp);
 
-  const runContext = input.source === "schedule"
-    ? `This is a scheduled hygiene run. Configuration: ${JSON.stringify({
+  const runContext = schedule.mode === "async"
+    ? `This is an asynchronous hygiene run. Configuration: ${JSON.stringify({
         repository: schedule.repository,
         projectId: schedule.projectId,
         productionEnvironment: schedule.productionEnvironment ?? "production",
