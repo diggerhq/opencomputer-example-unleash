@@ -129,6 +129,22 @@ into a failed tool call. Re-running the tool reuses the stable
 `owner/repository#pull-number:review-request` idempotency key, so the outbox can
 deduplicate the notification.
 
+## Test the code-defined schedule
+
+The `weekday-hygiene` definition under the agent's `schedules/` directory runs
+at 9:00 AM Pacific on weekdays in Production. Development discovers and displays
+the same definition but leaves it manual-only by default. Open the project's
+**Schedules** tab in Development and choose **Run now** to test it safely.
+
+The schedule sends `payload.mode: "async"`, which selects the unattended agent
+behavior. `input.source: "schedule"` remains execution provenance and is not a
+business-mode switch. The example payload uses `dryRun: true`; change that only
+after validating the candidates and reviewer routing.
+
+To test automatic recurrence in Development explicitly, add `"development"` to
+the schedule's `enabled` array and redeploy. Development and Production keep
+separate schedule rows, run histories, sessions, secrets, and channel bindings.
+
 ## Verify the fixture directly
 
 ```bash
