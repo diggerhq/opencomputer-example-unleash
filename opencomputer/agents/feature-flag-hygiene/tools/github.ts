@@ -18,7 +18,7 @@ const REPOSITORY_ROOT = "/workspace/repositories";
 export const githubPat = defineConnection({
   id: "github-pat",
   origin: "https://api.github.com",
-  methods: ["GET", "POST", "PUT", "DELETE"],
+  methods: ["GET"],
   pathPrefix: "/repos/",
   redirectOrigins: [{ origin: "https://codeload.github.com" }],
   headers: {
@@ -227,7 +227,11 @@ export const findFileOwners = defineTool({
   },
 });
 
-export const openCleanupPullRequest = defineTool({
+// Retained temporarily for source compatibility while the POC migrates writes
+// to actions.ts. Keeping it outside tool-definition discovery prevents the legacy
+// PAT write path from being registered in the deployment.
+const legacyDefineTool = defineTool;
+export const openCleanupPullRequest = legacyDefineTool({
   name: "open_feature_flag_cleanup_pr",
   description:
     "Create or reuse a cleanup branch, commit complete file replacements/deletions, open a GitHub PR, and request known owners. Uses the managed GITHUB_PAT connection.",

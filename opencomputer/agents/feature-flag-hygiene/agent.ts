@@ -8,11 +8,11 @@ import {
   useSecret,
   useTool,
 } from "@opencomputer/agent";
+import { createPullRequest } from "./actions.js";
 import {
   cloneRepository,
   findFileOwners,
   githubMcpPat,
-  openCleanupPullRequest,
 } from "./tools/github.js";
 
 const githubPatMcp = defineMcpServer({
@@ -63,7 +63,7 @@ export default function Agent() {
 
   useTool(cloneRepository);
   useTool(findFileOwners);
-  useTool(openCleanupPullRequest);
+  useTool(createPullRequest);
   useMcpServer(githubPatMcp);
 
   const runContext = schedule.mode === "async"
@@ -115,10 +115,11 @@ Run this workflow:
    GitHub accepts it. Include flag age evidence, production state, files changed,
    tests run, and any use of createdAt as a proxy.
 
-For PAT mode, use open_feature_flag_cleanup_pr with the final complete contents
-of each changed file. For OAuth mode, use GitHub MCP tools to create the branch,
-push files, open the PR, and request reviewers. In PAT mode, the clone tool is
-the local source of truth for analysis and tests.
+For each approved cleanup, edit the materialized checkout directly, run its
+tests, commit the exact result, and push that branch to the OpenComputer mirror.
+Then call github_create_pull_request with the mirror locator, exact head and
+base OIDs, a deterministic external branch, and the PR metadata. Default to a
+draft PR. Do not use GitHub MCP or the contents API to publish writes.
 
 Safety rules:
 - Never print, request, or place a PAT in tool input, commands, a remote URL, or
