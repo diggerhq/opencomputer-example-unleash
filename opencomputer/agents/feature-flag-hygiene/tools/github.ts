@@ -77,7 +77,8 @@ async function githubJson<T>(
   return response ? (await response.json()) as T : undefined;
 }
 
-export const cloneRepository = defineTool({
+const legacySnapshotDefineTool = defineTool;
+export const cloneRepository = legacySnapshotDefineTool({
   name: "clone_github_repository",
   description:
     "Securely materialize a GitHub repository ref in /workspace/repositories using the managed GITHUB_PAT connection. The token is never returned to the model.",

@@ -1,19 +1,36 @@
 import {
   defineConnection,
   defineMcpServer,
+  defineRepository,
+  githubRepository,
   secretHeader,
   useInput,
   useMcpServer,
   useModel,
+  useRepository,
   useSecret,
   useTool,
 } from "@opencomputer/agent";
 import { createPullRequest } from "./actions.js";
 import {
-  cloneRepository,
   findFileOwners,
   githubMcpPat,
 } from "./tools/github.js";
+
+const applicationRepository = defineRepository({
+  id: "application",
+  source: githubRepository({
+    owner: "diggerhq",
+    name: "opencomputer-example-unleash",
+  }),
+  mirror: { mode: "managed", sync: "pull" },
+  workspace: {
+    path: "repositories/application",
+    access: "read-write",
+    refs: "session",
+  },
+  publish: { mode: "actions-only" },
+});
 
 const githubPatMcp = defineMcpServer({
   id: "github-pat",
@@ -60,8 +77,8 @@ export default function Agent() {
 
   useModel("anthropic/claude-sonnet-4.6");
   useMcpServer(unleashMcp);
+  useRepository(applicationRepository);
 
-  useTool(cloneRepository);
   useTool(findFileOwners);
   useTool(createPullRequest);
   useMcpServer(githubPatMcp);
@@ -85,10 +102,10 @@ Your job is to find stale Unleash release flags that are still referenced in a
 repository and prepare small, reviewable cleanup pull requests.
 
 Run this workflow:
-1. Parse repository as owner/name and materialize it with
-   clone_github_repository. Use the GitHub MCP search_code and file-content tools
-   to find exact feature-flag names referenced by executable code, then treat the
-   materialized checkout as the source used for tests. The hosted Unleash MCP exposes project inventory as MCP resources, which
+1. Work in the managed Git checkout at repositories/application (mounted at
+   /workspace/repositories/application in hosted sessions). Use the GitHub MCP search_code and
+   file-content tools to find exact feature-flag names referenced by executable
+   code, then treat the managed checkout as the source used for tests. The hosted Unleash MCP exposes project inventory as MCP resources, which
    are not available through this runtime's lazy tool catalog, so do not guess a
    list_flags tool, call detect_flag, or call resources/read. Use the Unleash MCP
    get_flag_state tool for each exact flag name found in the repository, passing
@@ -117,8 +134,8 @@ Run this workflow:
 
 For each approved cleanup, edit the materialized checkout directly, run its
 tests, commit the exact result, and push that branch to the OpenComputer mirror.
-Then call github_create_pull_request with the mirror locator, exact head and
-base OIDs, a deterministic external branch, and the PR metadata. Default to a
+Then call github_create_pull_request with repositoryId "application", exact
+head and base OIDs, a deterministic external branch, and the PR metadata. Default to a
 draft PR. Do not use GitHub MCP or the contents API to publish writes.
 
 Safety rules:

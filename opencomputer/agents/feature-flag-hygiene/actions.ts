@@ -43,8 +43,7 @@ export const createPullRequest = defineAction({
   input: {
     type: "object",
     properties: {
-      repository: { type: "string" },
-      mirror: { type: "string" },
+      repositoryId: { type: "string" },
       headOid: { type: "string" },
       baseBranch: { type: "string" },
       baseOid: { type: "string" },
@@ -54,8 +53,7 @@ export const createPullRequest = defineAction({
       draft: { type: "boolean" },
     },
     required: [
-      "repository",
-      "mirror",
+      "repositoryId",
       "headOid",
       "baseBranch",
       "baseOid",
@@ -67,8 +65,12 @@ export const createPullRequest = defineAction({
   secrets: {
     githubToken: useSecret("GITHUB_TOKEN"),
   },
-  async run({ input, secrets }) {
-    if (input.repository !== repository) throw new Error("Repository is not allowed");
+  async run({ input, secrets, repositories }) {
+    if (input.repositoryId !== "application") {
+      throw new Error("Repository is not allowed");
+    }
+    const mirror = repositories.application;
+    if (!mirror) throw new Error("Managed repository application is unavailable");
     const headOid = oid(input.headOid, "headOid");
     const baseOid = oid(input.baseOid, "baseOid");
     const externalBranch = branch(input.externalBranch);
@@ -81,7 +83,7 @@ export const createPullRequest = defineAction({
         { mode: 0o700 },
       );
       await execFileAsync("git", ["init", "--bare", temporary]);
-      await execFileAsync("git", ["fetch", String(input.mirror), headOid], {
+      await execFileAsync("git", ["fetch", mirror.remote, headOid], {
         cwd: temporary,
       });
 
@@ -160,7 +162,7 @@ export default function Actions() {
   useGate(() => {
     if (
       action.definitionId !== createPullRequest.id ||
-      action.input.repository !== repository
+      action.input.repositoryId !== "application"
     ) {
       return deny("Feature hygiene may only publish its configured repository");
     }
