@@ -121,6 +121,35 @@ export const createPullRequest = defineAction({
         },
       );
 
+      const existingResponse = await fetch(
+        `https://api.github.com/repos/${repository}/pulls?state=open&head=${encodeURIComponent(`diggerhq:${externalBranch}`)}&base=${encodeURIComponent(String(input.baseBranch))}`,
+        {
+          headers: {
+            authorization: `Bearer ${secrets.githubToken}`,
+            accept: "application/vnd.github+json",
+            "user-agent": "opencomputer-feature-hygiene-action",
+          },
+        },
+      );
+      if (!existingResponse.ok) {
+        throw new Error(`GitHub PR lookup returned ${existingResponse.status}`);
+      }
+      const existing = await existingResponse.json() as Array<{
+        number: number;
+        html_url: string;
+      }>;
+      if (existing[0]) {
+        return {
+          status: "existing",
+          number: existing[0].number,
+          url: existing[0].html_url,
+          repository,
+          externalBranch,
+          headOid,
+          baseOid,
+        };
+      }
+
       const response = await fetch(`https://api.github.com/repos/${repository}/pulls`, {
         method: "POST",
         headers: {
