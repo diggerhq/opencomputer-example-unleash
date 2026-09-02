@@ -5,6 +5,8 @@ flags still referenced by code and prepares one cleanup pull request per flag.
 It also includes a dependency-free fixture application under
 `examples/unleash-feature-flags-fixture`.
 
+[Deploy to OpenComputer →](https://app.opencomputer.dev/new?repository-url=https%3A%2F%2Fgithub.com%2Fdiggerhq%2Fopencomputer-example-unleash)
+
 ## Prerequisites
 
 - Node.js 22 or newer

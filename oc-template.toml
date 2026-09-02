@@ -1,0 +1,18 @@
+schema = 1
+
+[template]
+name = "Feature Flag Hygiene"
+description = "Find stale Unleash flags and prepare focused cleanup pull requests."
+documentation = "https://docs.opencomputer.dev/agents/examples/feature-flag-hygiene"
+default_project_name = "feature-flag-hygiene"
+
+[template.first_run]
+agent = "feature-flag-hygiene"
+prompt = "Analyze repository diggerhq/opencomputer-example-unleash using Unleash project feature-example-test and production environment. Use minimumAgeDays 0, GitHub PAT mode, and dryRun true."
+
+[template.secrets.GITHUB_PAT]
+description = "Fine-grained GitHub token for repository reads and cleanup pull requests."
+documentation = "https://github.com/settings/personal-access-tokens"
+
+[template.secrets.UNLEASH_API_TOKEN]
+description = "Unleash API token for reading feature flag state."
